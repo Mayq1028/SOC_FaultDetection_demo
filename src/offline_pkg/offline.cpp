@@ -260,7 +260,7 @@
 
     void save_data_to_csv(const EstimateOutput& est, const SimSystem& sim, int N)
     {
-        ofstream file("../data/output/offline.csv");
+        ofstream file("/home/cat/SOC_FaultDetection_demo/data/output/offline.csv");
         
         file << "k,Up_est,Up_low,Up_up,Up_true,SOC_est,SOC_low,SOC_up,SOC_true,Vol,y_est,y_low,y_up,y_true\n";
         
@@ -345,93 +345,6 @@
         }
     }
 
-    void EKF_offline_origin(const MatrixXd& A, const MatrixXd& B, double D, 
-        const VectorXd& Cur, const VectorXd& Vol,
-        const VectorXd& pfit, int s,
-        const VectorXd& x1_, const MatrixXd& Gw, 
-        double Gv, const MatrixXd& Q, 
-        double R, MatrixXd P0, 
-        const MatrixXd& BG1_diag,
-        MatrixXd& x_, MatrixXd& x_l, MatrixXd& x_u,
-        VectorXd& y_, VectorXd& y_l, VectorXd& y_u
-    ) {
-        int N = Cur.size();
-        int n_state = x1_.size();
-        
-        // 计算多项式导数
-        VectorXd pder = polyder(pfit);
-        
-        // 初始化输出变量
-        x_ = MatrixXd::Zero(n_state, N);
-        x_l = MatrixXd::Zero(n_state, N);
-        x_u = MatrixXd::Zero(n_state, N);
-        y_ = VectorXd::Zero(N - 1);
-        y_l = VectorXd::Zero(N - 1);
-        y_u = VectorXd::Zero(N - 1);
-        
-        // 初始化边界生成器
-        MatrixXd BG_current = BG1_diag;
-        int r_current = BG1_diag.cols();
-        
-        // 存储中间结果
-        VectorXd Uoc = VectorXd::Zero(N - 1);
-        VectorXd Up = VectorXd::Zero(N - 1);
-        
-        // 设置初始状态
-        x_.col(0) = x1_;
-        x_l.col(0) = x1_ - BG1_diag.cwiseAbs().rowwise().sum();
-        x_u.col(0) = x1_ + BG1_diag.cwiseAbs().rowwise().sum();
-        
-        // 主循环
-        for (int k = 0; k < N - 1; ++k) {
-            // 预测步骤
-            VectorXd x_pre = A * x_.col(k) + B * Cur[k];
-            MatrixXd BG_pre(A * BG_current);
-            BG_pre.conservativeResize(NoChange, BG_pre.cols() + Gw.cols());
-            BG_pre.rightCols(Gw.cols()) = Gw;
-            
-            // 计算测量矩阵
-            RowVectorXd C(2);
-            C << -1, polyval(pder, x_pre[1]);
-            
-            // 估计输出
-            Uoc[k] = polyval(pfit, x_pre[1]);
-            Up[k] = x_pre[0];
-            y_[k] = Uoc[k] - Up[k] + D * Cur[k];
-            
-            // 计算输出边界
-            MatrixXd BG_y = C * BG_current;
-            BG_y.conservativeResize(NoChange, BG_y.cols() + 1);
-            BG_y(BG_y.cols() - 1) = Gv;
-            BG_y = jiangjie(BG_y, s);
-            
-            y_l[k] = y_[k] - BG_y.cwiseAbs().sum();
-            y_u[k] = y_[k] + BG_y.cwiseAbs().sum();
-            
-            // 卡尔曼增益和状态更新
-            MatrixXd P_pred = A * P0 * A.transpose() + Q;
-            double S = (C * P_pred * C.transpose())(0,0) + R; // 标量计算
-            MatrixXd K = P_pred * C.transpose() * (1.0/S);        // 用除法替代逆
-            P0 = (MatrixXd::Identity(n_state, n_state) - K * C) * P_pred;
-            
-            // 状态更新
-            VectorXd x_ = x_pre + K * (Vol[k] - y_[k]);
-            x_.col(k + 1) = x_;
-            
-            // 更新边界生成器
-            MatrixXd BG(BG_pre);
-            BG.conservativeResize(NoChange, BG.cols() + (K * (-BG_y)).cols());
-            BG.rightCols((K * (-BG_y)).cols()) = K * (-BG_y);
-            BG_current = jiangjie(BG, s);
-            
-            // 计算状态边界
-            VectorXd abs_sum = BG_current.cwiseAbs().rowwise().sum();
-            x_l.col(k + 1) = x_ - abs_sum;
-            x_u.col(k + 1) = x_ + abs_sum;
-        }
-    }
-
-
     // 离线数据集EKF实现
     inline EstimateOutput EKF_offline(const CoeffMatrix& cm, 
                 int s, 
@@ -497,8 +410,7 @@
             gain.P0 = temp * P_pred;
             
             // 状态更新
-            VectorXd x_updated = x_pre + K * (input.Vol[k] - y_[k]);
-            x_.col(k + 1) = x_updated;
+            x_.col(k + 1) = x_pre + K * (input.Vol[k] - y_[k]);
             
             // 更新边界生成器
             MatrixXd BG(BG_pre);
@@ -508,8 +420,8 @@
             
             // 计算状态边界
             VectorXd abs_sum = BG_current.cwiseAbs().rowwise().sum();
-            x_l.col(k + 1) = x_updated - abs_sum;
-            x_u.col(k + 1) = x_updated + abs_sum;
+            x_l.col(k + 1) = x_.col(k + 1) - abs_sum;
+            x_u.col(k + 1) = x_.col(k + 1) + abs_sum;
         }
 
         // 输出结果
@@ -553,14 +465,14 @@
         SimSystem sim = generate_state(cm, input.Cur, init, pfit, noise);
 
         // EKF状态估计
-        // EstimateOutput output = EKF_offline(cm, dim.s, pfit, input, init, noise, gain);
+        EstimateOutput output = EKF_offline(cm, dim.s, pfit, input, init, noise, gain);
 
-        EstimateOutput output;
-        EKF_offline_origin(cm.A, cm.B, cm.D, input.Cur, input.Vol, pfit, dim.s, init.x1_, noise.Gw, 
-            noise.Gv, gain.Q, gain.R, gain.P0, init.BG1_diag,
-            output.x_hat, output.x_low, output.x_up,
-            output.y_hat, output.y_low, output.y_up
-        );
+        // EstimateOutput output;
+        // EKF_offline_origin(cm.A, cm.B, cm.D, input.Cur, input.Vol, pfit, dim.s, init.x1_, noise.Gw, 
+        //     noise.Gv, gain.Q, gain.R, gain.P0, init.BG1_diag,
+        //     output.x_hat, output.x_low, output.x_up,
+        //     output.y_hat, output.y_low, output.y_up
+        // );
 
 
         std::vector<int> fault_status; // 用来存储每个时刻的故障状态

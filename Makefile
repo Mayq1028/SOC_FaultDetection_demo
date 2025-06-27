@@ -19,10 +19,15 @@ ONLINE_SRC = $(SRC_DIR)/online_pkg/online.cpp
 ONLINE_OBJ = $(OBJ_DIR)/online.o
 ONLINE_BIN = $(BIN_DIR)/online
 
-# 实时程序_调整deltaT
-ONLINE_SRC = $(SRC_DIR)/online_pkg/deltaT_adjust.cpp
-ONLINE_OBJ = $(OBJ_DIR)/deltaT_adjust.o
-ONLINE_BIN = $(BIN_DIR)/deltaT_adjust
+# # 实时程序_调整deltaT
+# ONLINE_SRC = $(SRC_DIR)/online_pkg/deltaT_adjust.cpp
+# ONLINE_OBJ = $(OBJ_DIR)/deltaT_adjust.o
+# ONLINE_BIN = $(BIN_DIR)/deltaT_adjust
+
+# 离线程序
+OFFLINE_SRC = $(SRC_DIR)/offline_pkg/offline_origin.cpp
+OFFLINE_OBJ = $(OBJ_DIR)/offline_origin.o
+OFFLINE_BIN = $(BIN_DIR)/offline_origin
 
 # 默认目标：编译并生成所有可执行文件
 all: $(OFFLINE_BIN) $(ONLINE_BIN)

@@ -351,8 +351,7 @@
             P0 = (MatrixXd::Identity(n_state, n_state) - K * C) * P_pred;
             
             // 状态更新
-            VectorXd x_ = x_pre + K * (Vol[k] - y_[k]);
-            x_.col(k + 1) = x_;
+            x_.col(k + 1) = x_pre + K * (Vol[k] - y_[k]);
             
             // 更新边界生成器
             MatrixXd BG(BG_pre);
@@ -362,8 +361,8 @@
             
             // 计算状态边界
             VectorXd abs_sum = BG_current.cwiseAbs().rowwise().sum();
-            x_l.col(k + 1) = x_ - abs_sum;
-            x_u.col(k + 1) = x_ + abs_sum;
+            x_l.col(k + 1) = x_.col(k + 1) - abs_sum;
+            x_u.col(k + 1) = x_.col(k + 1) + abs_sum;
         }
     }
 
@@ -374,7 +373,7 @@
         const Eigen::VectorXd& y_l, const Eigen::VectorXd& y_u,
         const Eigen::MatrixXd& x, const Eigen::VectorXd& y, int N)
     {
-        std::ofstream file("../data/plot_data.csv");
+        std::ofstream file("/home/cat/SOC_FaultDetection_demo/data/output/offline_origin.csv");
         
         file << "k,Up_est,Up_low,Up_up,Up_true,SOC_est,SOC_low,SOC_up,SOC_true,Vol,y_est,y_low,y_up,y_true\n";
         
@@ -457,7 +456,7 @@
 
         
         // 保存
-        // save_data_to_csv(x_, x_l, x_u, Vol, y_, y_l, y_u, x, y, N);
+        save_data_to_csv(x_, x_l, x_u, Vol, y_, y_l, y_u, x, y, N);
 
         return 0;
     }

@@ -76,7 +76,7 @@ python3 save_tty_data.py
 python3 read_tty.py
 ```
 
-三、工程目录解释
+## 三、工程目录解释
 
 ```
 cat@lubancat:~/SOC_FaultDetection_demo$ tree .
