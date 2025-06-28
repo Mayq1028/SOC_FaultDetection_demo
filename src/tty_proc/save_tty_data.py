@@ -22,8 +22,8 @@ R_SAMPLE = 1.0
 
 # 数据保存路径
 # Data save path
-VOLTAGE_FILE_PATH = "../../data/collect_data/Vol.txt"
-CURRENT_FILE_PATH = "../../data/collect_data/Cur.txt"
+VOLTAGE_FILE_PATH = "data/collect_data/Vol.txt"
+CURRENT_FILE_PATH = "data/collect_data/Cur.txt"
 
 # 停止采集的电压阈值
 # Voltage threshold to stop collection

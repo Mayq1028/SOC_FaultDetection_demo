@@ -370,7 +370,7 @@
     void save_data_to_csv(const EstimateOutput& est, const SimSystem& sim, int k)
     {
         // 打开文件进行覆盖
-        ofstream file("/home/cat/SOC_FaultDetection_demo/data/output/online.csv");
+        ofstream file("data/output/online.csv");
         
         // 文件的第一行标题，仅在文件为空时写入
         static bool is_first_line = true;
@@ -459,7 +459,7 @@
     int main() {
         BatteryParam bp;   // 电池参数
         CoeffMatrix cm = makeParaMatrix(bp);  //系数矩阵
-        VectorXd pfit = load_data("../data/pre_data/pfit_online.txt"); // 加载拟合的SOC非线性观测系数C
+        VectorXd pfit = load_data("data/pre_data/pfit_online.txt"); // 加载拟合的SOC非线性观测系数C
         Dimension dim(12, 2); // 维数
         InitParam init; // 初始值
         NoiseParam noise; // 噪声

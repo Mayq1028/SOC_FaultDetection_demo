@@ -260,7 +260,7 @@
 
     void save_data_to_csv(const EstimateOutput& est, const SimSystem& sim, int N)
     {
-        ofstream file("/home/cat/SOC_FaultDetection_demo/data/output/offline.csv");
+        ofstream file("data/output/offline.csv");
         
         file << "k,Up_est,Up_low,Up_up,Up_true,SOC_est,SOC_low,SOC_up,SOC_true,Vol,y_est,y_low,y_up,y_true\n";
         
@@ -442,7 +442,7 @@
         //系数矩阵
         CoeffMatrix cm = makeParaMatrix(bp);  
         // 加载拟合的SOC非线性观测系数C
-        VectorXd pfit = load_data("/home/cat/SOC_FaultDetection_demo/data/pre_data/pfit_offline.txt"); 
+        VectorXd pfit = load_data("data/pre_data/pfit_offline.txt"); 
         // 维数
         Dimension dim(12, 2); 
         // 初始值
@@ -453,8 +453,8 @@
         EKFGainParam gain; 
 
         //加载数据集原始数据
-        VectorXd voltage = load_data("/home/cat/SOC_FaultDetection_demo/data/pre_data/voltage.txt");
-        VectorXd current = load_data("/home/cat/SOC_FaultDetection_demo/data/pre_data/current.txt");
+        VectorXd voltage = load_data("data/pre_data/voltage.txt");
+        VectorXd current = load_data("data/pre_data/current.txt");
 
         // 电流故障
         // VectorXd f_current = -current;

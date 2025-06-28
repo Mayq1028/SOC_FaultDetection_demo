@@ -373,7 +373,7 @@
         const Eigen::VectorXd& y_l, const Eigen::VectorXd& y_u,
         const Eigen::MatrixXd& x, const Eigen::VectorXd& y, int N)
     {
-        std::ofstream file("/home/cat/SOC_FaultDetection_demo/data/output/offline_origin.csv");
+        std::ofstream file("data/output/offline_origin.csv");
         
         file << "k,Up_est,Up_low,Up_up,Up_true,SOC_est,SOC_low,SOC_up,SOC_true,Vol,y_est,y_low,y_up,y_true\n";
         
@@ -399,11 +399,11 @@
 
     int main() {
 
-        VectorXd pfit = load_data("/home/cat/zkf_ws/data/pre_data/pfit_offline.txt");
+        VectorXd pfit = load_data("data/pre_data/pfit_offline.txt");
         VectorXd voltage, current;
         int k = 1; // 计数器，与Python代码一致
-        voltage = load_data("/home/cat/zkf_ws/data/pre_data/voltage.txt");
-        current = load_data("/home/cat/zkf_ws/data/pre_data/current.txt");
+        voltage = load_data("data/pre_data/voltage.txt");
+        current = load_data("data/pre_data/current.txt");
                 
 
         VectorXd Cur = -current;

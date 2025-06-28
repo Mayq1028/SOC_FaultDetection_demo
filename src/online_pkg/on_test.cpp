@@ -370,7 +370,7 @@
     void save_data_to_csv(const EstimateOutput& est, const SimSystem& sim, int k)
     {
         // 打开文件进行追加
-        ofstream file("../data/output/online.csv");
+        ofstream file("data/output/online.csv");
         
         // 文件的第一行标题，仅在文件为空时写入
         static bool is_first_line = true;
